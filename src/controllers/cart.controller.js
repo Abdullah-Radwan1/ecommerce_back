@@ -1,17 +1,40 @@
 import Cart from "../models/cart.model.js";
-import Product from "../models/product.model.js";
+import Product from "../models/Product.model.js";
+import { catchAsync } from "../utilities/catchAsync.ut.js";
 
 // GET CART
-export const getCart = async (req, res) => {
+export const getCart = catchAsync(async (req, res, next) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+
   const cart = await Cart.findOne({ user: req.user._id }).populate(
-    "items.product",
+    "items.product"
   );
 
-  res.json(cart);
-};
+  if (!cart) {
+    return res.json({ items: [], totalResult: 0 });
+  }
+
+  // Paginate the items array manually
+  const totalResult = cart.items.length;
+  const paginatedItems = cart.items.slice(skip, skip + limit);
+
+  res.json({
+    _id: cart._id,
+    user: cart.user,
+    items: paginatedItems,
+    pagination: {
+      page,
+      limit,
+      totalResult,
+      totalPages: Math.ceil(totalResult / limit),
+    },
+  });
+});
 
 // ADD TO CART
-export const addToCart = async (req, res) => {
+export const addToCart = catchAsync(async (req, res, next) => {
   const { productId, quantity } = req.body;
 
   let cart = await Cart.findOne({ user: req.user._id });
@@ -23,7 +46,7 @@ export const addToCart = async (req, res) => {
   const product = await Product.findById(productId);
 
   const existingItem = cart.items.find(
-    (item) => item.product.toString() === productId,
+    (item) => item.product.toString() === productId
   );
 
   if (existingItem) {
@@ -39,10 +62,10 @@ export const addToCart = async (req, res) => {
   await cart.save();
 
   res.json(cart);
-};
+});
 
 // 🔥 CHECK PRICE CHANGES
-export const syncCartPrices = async (req, res) => {
+export const syncCartPrices = catchAsync(async (req, res, next) => {
   const cart = await Cart.findOne({ user: req.user._id });
 
   for (let item of cart.items) {
@@ -60,17 +83,29 @@ export const syncCartPrices = async (req, res) => {
   await cart.save();
 
   res.json(cart);
-};
+});
 
 // REMOVE ITEM
-export const removeFromCart = async (req, res) => {
+export const removeFromCart = catchAsync(async (req, res, next) => {
   const cart = await Cart.findOne({ user: req.user._id });
 
   cart.items = cart.items.filter(
-    (item) => item.product.toString() !== req.params.productId,
+    (item) => item.product.toString() !== req.params.productId
   );
 
   await cart.save();
 
   res.json(cart);
-};
+});
+
+// CLEAR CART
+export const clearCart = catchAsync(async (req, res, next) => {
+  const cart = await Cart.findOne({ user: req.user._id });
+
+  if (cart) {
+    cart.items = [];
+    await cart.save();
+  }
+
+  res.json(cart || { items: [] });
+});

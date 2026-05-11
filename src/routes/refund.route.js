@@ -6,7 +6,7 @@ import {
   getAllRefunds,
 } from "../controllers/refund.controller.js";
 
-import { protect, adminOnly } from "../middleware.js";
+import { protect, adminOnly } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 

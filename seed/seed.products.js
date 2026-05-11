@@ -1,242 +1,262 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Category from "../src/models/category.model.js";
-import Product from "../src/models/product.model.js";
+import Product from "../src/models/Product.model.js";
 
 dotenv.config();
 
 const seed = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-
     console.log("DB connected");
 
-    // clear DB (optional)
+    // clear DB
     await Category.deleteMany();
     await Product.deleteMany();
 
-    // ✅ 1. create categories
+    // ✅ Categories
     const categories = await Category.insertMany([
-      { name: "Men Jalabiyas", slug: "men-jalabiyas" },
-      { name: "Women Jalabiyas", slug: "women-jalabiyas" },
+      { name: "Accessories", slug: "accessories" },
+      { name: "Chairs", slug: "chairs" },
+      { name: "Clocks", slug: "clocks" },
+      { name: "Lamps", slug: "lamps" },
+      { name: "Tables", slug: "tables" },
     ]);
 
-    // ✅ 2. extract IDs INSIDE function
-    const menCategory = categories.find((c) => c.slug === "men-jalabiyas");
+    const accessoriesCategoryId = categories.find(
+      (c) => c.slug === "accessories",
+    )._id;
+    const chairsCategoryId = categories.find((c) => c.slug === "chairs")._id;
+    const clocksCategoryId = categories.find((c) => c.slug === "clocks")._id;
+    const lampsCategoryId = categories.find((c) => c.slug === "lamps")._id;
+    const tablesCategoryId = categories.find((c) => c.slug === "tables")._id;
 
-    const womenCategory = categories.find((c) => c.slug === "women-jalabiyas");
-
-    const menCategoryId = menCategory._id;
-    const womenCategoryId = womenCategory._id;
-
-    // ✅ 3. use them HERE (same scope)
+    // ✅ Products
     await Product.insertMany([
-      // ===================== MEN (7 products)
+      // 1
       {
-        name: {
-          ar: "جلابية رجالي قطن كلاسيك",
-          en: "Men Classic Cotton Jalabiya",
-        },
-        description: {
-          ar: "جلابية يومية مريحة من القطن",
-          en: "Comfortable daily cotton jalabiya",
-        },
-        imageUrl: "/products/men1.png",
-        price: 320,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "M", stock: 10 },
-          { size: "L", stock: 12 },
-          { size: "XL", stock: 8 },
+        name: "Basket",
+        slug: "basket",
+        description: "Eco-friendly handwoven storage basket",
+        imageUrl: "/products/basket.jpg",
+        price: 50,
+        category: accessoriesCategoryId,
+        variants: [
+          { color: "beige", stock: 12 },
+          { color: "natural", stock: 8 },
         ],
-        colors: ["white", "beige"],
-      },
-      {
-        name: {
-          ar: "جلابية رجالي مطرزة فاخرة",
-          en: "Men Luxury Embroidered Jalabiya",
-        },
-        description: {
-          ar: "تصميم فاخر للمناسبات",
-          en: "Luxury design for occasions",
-        },
-        imageUrl: "/products/men2.png",
-        price: 550,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "L", stock: 6 },
-          { size: "XL", stock: 5 },
-        ],
-        colors: ["black", "navy"],
-      },
-      {
-        name: { ar: "جلابية رجالي صيفي خفيف", en: "Men Summer Light Jalabiya" },
-        description: { ar: "خفيفة ومناسبة للحر", en: "Light and breathable" },
-        imageUrl: "/products/men3.png",
-        price: 280,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "M", stock: 14 },
-          { size: "L", stock: 10 },
-        ],
-        colors: ["white", "gray"],
-      },
-      {
-        name: { ar: "جلابية رجالي خليجي", en: "Men Gulf Style Jalabiya" },
-        description: { ar: "ستايل خليجي أنيق", en: "Elegant Gulf style" },
-        imageUrl: "/products/men4.png",
-        price: 430,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "M", stock: 8 },
-          { size: "L", stock: 9 },
-        ],
-        colors: ["white", "cream"],
-      },
-      {
-        name: { ar: "جلابية رجالي قطن فاخر", en: "Premium Cotton Jalabiya" },
-        description: { ar: "قطن عالي الجودة", en: "High quality cotton" },
-        imageUrl: "/products/men5.png",
-        price: 390,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "L", stock: 10 },
-          { size: "XL", stock: 7 },
-        ],
-        colors: ["beige", "brown"],
-      },
-      {
-        name: { ar: "جلابية رجالي بسيطة", en: "Simple Men Jalabiya" },
-        description: { ar: "تصميم بسيط يومي", en: "Simple daily wear" },
-        imageUrl: "/products/men6.png",
-        price: 250,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "M", stock: 15 },
-          { size: "L", stock: 12 },
-        ],
-        colors: ["white"],
-      },
-      {
-        name: { ar: "جلابية رجالي رسمية", en: "Formal Men Jalabiya" },
-        description: { ar: "للمناسبات الرسمية", en: "For formal occasions" },
-        imageUrl: "/products/men7.png",
-        price: 600,
-        category: menCategoryId,
-        gender: "men",
-        sizes: [
-          { size: "L", stock: 5 },
-          { size: "XL", stock: 4 },
-        ],
-        colors: ["black"],
+        tags: ["storage", "handmade", "eco-friendly"],
       },
 
-      // ===================== WOMEN (7 products)
+      // 2
       {
-        name: { ar: "جلابية حريمي أنيقة", en: "Women Elegant Jalabiya" },
-        description: { ar: "تصميم عصري مريح", en: "Modern comfortable design" },
-        imageUrl: "/products/women1.png",
-        price: 420,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "S", stock: 10 },
-          { size: "M", stock: 12 },
+        name: "Black Chair",
+        slug: "black-chair",
+        description: "Modern ergonomic chair",
+        imageUrl: "/products/black-chair.jpg",
+        price: 120,
+        category: chairsCategoryId,
+        variants: [
+          { color: "black", stock: 15 },
+          { color: "gray", stock: 5 },
         ],
-        colors: ["pink", "cream"],
+        tags: ["modern", "ergonomic"],
       },
+
+      // 3 ❌ OUT OF STOCK
       {
-        name: { ar: "جلابية حريمي مطرزة", en: "Women Embroidered Jalabiya" },
-        description: {
-          ar: "تطريز فاخر للمناسبات",
-          en: "Luxury embroidery for events",
-        },
-        imageUrl: "/products/women2.png",
-        price: 650,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "M", stock: 8 },
-          { size: "L", stock: 6 },
+        name: "Black Clock",
+        slug: "black-clock",
+        description: "Minimalist silent wall clock",
+        imageUrl: "/products/black-clock.jpg",
+        price: 70,
+        category: clocksCategoryId,
+        variants: [{ color: "black", stock: 0 }],
+        tags: ["minimalist", "silent"],
+      },
+
+      // 4
+      {
+        name: "Cup",
+        slug: "cup",
+        description: "Ceramic drinkware cup",
+        imageUrl: "/products/cup.webp",
+        price: 15,
+        category: accessoriesCategoryId,
+        variants: [
+          { color: "white", stock: 6 },
+          { color: "beige", stock: 7 },
         ],
-        colors: ["black", "gold"],
+        tags: ["ceramic", "kitchen"],
       },
+
+      // 5
       {
-        name: { ar: "جلابية حريمي يومية", en: "Women Casual Jalabiya" },
-        description: {
-          ar: "مريحة للاستخدام اليومي",
-          en: "Comfortable daily wear",
-        },
-        imageUrl: "/products/women3.png",
+        name: "Dark Lamp",
+        slug: "dark-lamp",
+        description: "Adjustable ambient lamp",
+        imageUrl: "/products/dark-lamp.jpg",
+        price: 80,
+        category: lampsCategoryId,
+        variants: [
+          { color: "black", stock: 10 },
+          { color: "dark gray", stock: 5 },
+        ],
+        tags: ["ambient", "adjustable"],
+        isFeatured: true,
+      },
+
+      // 6 ⚠️ LOW STOCK
+      {
+        name: "Drawer",
+        slug: "drawer",
+        description: "Wooden storage drawer unit",
+        imageUrl: "/products/drawer.webp",
+        price: 150,
+        category: tablesCategoryId,
+        variants: [
+          { color: "wood", stock: 3 },
+          { color: "brown", stock: 4 },
+        ],
+        tags: ["storage", "wood"],
+      },
+
+      // 7 ⚠️ LOW STOCK
+      {
+        name: "Golden Clock",
+        slug: "golden-clock",
+        description: "Luxury decorative clock",
+        imageUrl: "/products/golden-clock.webp",
+        price: 200,
+        category: clocksCategoryId,
+        variants: [
+          { color: "gold", stock: 2 },
+          { color: "black-gold", stock: 1 },
+        ],
+        tags: ["luxury", "decor"],
+      },
+
+      // 8
+      {
+        name: "Gray Chair",
+        slug: "gray-chair",
+        description: "Comfortable fabric chair",
+        imageUrl: "/products/gray-chair.jpg",
+        price: 130,
+        category: chairsCategoryId,
+        variants: [
+          { color: "gray", stock: 8 },
+          { color: "dark gray", stock: 6 },
+        ],
+        tags: ["comfortable", "modern"],
+        isFeatured: true,
+      },
+
+      // 9
+      {
+        name: "Grey Clock",
+        slug: "grey-clock",
+        description: "Modern silent wall clock",
+        imageUrl: "/products/grey-clock.jpg",
+        price: 75,
+        category: clocksCategoryId,
+        variants: [
+          { color: "gray", stock: 9 },
+          { color: "light gray", stock: 5 },
+        ],
+        tags: ["wall-clock", "modern"],
+      },
+
+      // 10
+      {
+        name: "White Chair",
+        slug: "white-chair",
+        description: "Minimal white chair",
+        imageUrl: "/products/white-chair.jpg",
+        price: 140,
+        category: chairsCategoryId,
+        variants: [
+          { color: "white", stock: 7 },
+          { color: "cream", stock: 8 },
+        ],
+        tags: ["minimal", "dining"],
+        isFeatured: true,
+      },
+
+      // 11
+      {
+        name: "Wooden Table",
+        slug: "wooden-table",
+        description: "Natural wooden table",
+        imageUrl: "/products/wooden-table.jpg",
         price: 300,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "S", stock: 14 },
-          { size: "M", stock: 10 },
+        category: tablesCategoryId,
+        variants: [
+          { color: "wood", stock: 13 },
+          { color: "dark wood", stock: 9 },
         ],
-        colors: ["blue", "gray"],
+        tags: ["wood", "natural"],
+        isFeatured: true,
       },
+
+      // 12
       {
-        name: { ar: "جلابية حريمي واسعة", en: "Women Loose Jalabiya" },
-        description: {
-          ar: "تصميم واسع ومريح",
-          en: "Loose and comfortable design",
-        },
-        imageUrl: "/products/women4.png",
-        price: 380,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "M", stock: 11 },
-          { size: "L", stock: 9 },
+        name: "Lamp",
+        slug: "lamp",
+        description: "Minimal ambient lamp",
+        imageUrl: "/products/lamp.jpg",
+        price: 90,
+        category: lampsCategoryId,
+        variants: [
+          { color: "white", stock: 12 },
+          { color: "black", stock: 15 },
         ],
-        colors: ["white", "beige"],
+        tags: ["minimal", "lighting"],
       },
+
+      // 13
       {
-        name: { ar: "جلابية حريمي فاخرة", en: "Women Luxury Jalabiya" },
-        description: { ar: "تصميم راقي للمناسبات", en: "Luxury occasion wear" },
-        imageUrl: "/products/women5.png",
-        price: 720,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "S", stock: 6 },
-          { size: "M", stock: 5 },
+        name: "Table",
+        slug: "table",
+        description: "Multi-purpose table",
+        imageUrl: "/products/table.jpg",
+        price: 250,
+        category: tablesCategoryId,
+        variants: [
+          { color: "wood", stock: 11 },
+          { color: "brown", stock: 7 },
         ],
-        colors: ["black", "red"],
+        tags: ["multi-purpose", "modern"],
       },
+
+      // 14
       {
-        name: { ar: "جلابية حريمي بسيطة", en: "Simple Women Jalabiya" },
-        description: { ar: "ستايل بسيط يومي", en: "Simple daily style" },
-        imageUrl: "/products/women6.png",
-        price: 260,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "S", stock: 13 },
-          { size: "M", stock: 10 },
+        name: "Teapot",
+        slug: "teapot",
+        description: "Ceramic heat-retaining teapot",
+        imageUrl: "/products/teapot.webp",
+        price: 60,
+        category: accessoriesCategoryId,
+        variants: [
+          { color: "white", stock: 5 },
+          { color: "beige", stock: 5 },
         ],
-        colors: ["white", "light blue"],
+        tags: ["tea", "kitchen"],
       },
+
+      // 15 ❌ OUT OF STOCK
       {
-        name: { ar: "جلابية حريمي شتوية", en: "Women Winter Jalabiya" },
-        description: { ar: "قماش دافئ لفصل الشتاء", en: "Warm winter fabric" },
-        imageUrl: "/products/women7.png",
-        price: 500,
-        category: womenCategoryId,
-        gender: "women",
-        sizes: [
-          { size: "M", stock: 8 },
-          { size: "L", stock: 7 },
+        name: "Vase",
+        slug: "vase",
+        description: "Decorative ceramic vase",
+        imageUrl: "/products/vase.jpg",
+        price: 70,
+        category: accessoriesCategoryId,
+        variants: [
+          { color: "white", stock: 0 },
+          { color: "beige", stock: 0 },
         ],
-        colors: ["brown", "dark green"],
+        tags: ["decor", "ceramic"],
       },
     ]);
 

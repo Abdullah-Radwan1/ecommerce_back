@@ -23,8 +23,16 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "paid", "shipped", "cancelled"],
       default: "pending",
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   { timestamps: true },
 );
 
-export default mongoose.model("Order", orderSchema);
+// Check if the model exists, otherwise compile it
+const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
+
+export default Order;

@@ -1,97 +1,124 @@
-import Product from "../models/product.model.js";
+import Product from "../models/Product.model.js";
+import { catchAsync } from "../utilities/catchAsync.ut.js";
+import { AppError } from "../utilities/appError.ut.js";
 
 // CREATE
-export const createProduct = async (req, res) => {
+export const createProduct = catchAsync(async (req, res, next) => {
   const product = await Product.create(req.body);
   res.status(201).json(product);
-};
+});
+
+import { getPagination } from "../middleware/pagination.middleware.js";
 
 // GET ALL (with filtering + pagination)
-export const getProducts = async (req, res) => {
-  try {
-    let {
-      page = 1,
-      limit = 10,
-      category,
-      minPrice,
-      maxPrice,
-      search,
-      sort = "-createdAt",
-    } = req.query;
+export const getProducts = catchAsync(async (req, res, next) => {
+  const { category, minPrice, maxPrice, search } = req.query;
 
-    // 🔥 تحويل القيم
-    page = Number(page);
-    limit = Number(limit);
+  const filter = { isDeleted: false };
 
-    const filter = { isDeleted: false };
-
-    // category
-    if (category) {
-      filter.category = category;
-    }
-
-    // price range
-    if (minPrice || maxPrice) {
-      filter.price = {
-        ...(minPrice && { $gte: Number(minPrice) }),
-        ...(maxPrice && { $lte: Number(maxPrice) }),
-      };
-    }
-
-    // 🔥 search (title)
-    if (search) {
-      filter.title = { $regex: search, $options: "i" };
-    }
-
-    // 🔥 parallel queries (performance)
-    const [products, total] = await Promise.all([
-      Product.find(filter)
-        .sort(sort)
-        .skip((page - 1) * limit)
-        .limit(limit),
-
-      Product.countDocuments(filter),
-    ]);
-
-    res.json({
-      products,
-      total,
-      page,
-      pages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  // category
+  if (category) {
+    filter.category = category;
   }
-};
+
+  // price range
+  if (minPrice || maxPrice) {
+    filter.price = {
+      ...(minPrice && { $gte: Number(minPrice) }),
+      ...(maxPrice && { $lte: Number(maxPrice) }),
+    };
+  }
+
+  // 🔥 search (name)
+  if (search) {
+    filter.name = { $regex: search, $options: "i" };
+  }
+
+  const results = await getPagination(Product, req, filter);
+
+  res.json(results);
+});
+
+// FAST SELLING (low stock)
+export const fastSelling = catchAsync(async (req, res, next) => {
+  const products = await Product.aggregate([
+    {
+      $match: {
+        isDeleted: false,
+      },
+    },
+    {
+      $addFields: {
+        totalStock: {
+          $sum: "$variants.stock",
+        },
+      },
+    },
+    {
+      $match: {
+        totalStock: {
+          $gt: 0, // ✅ exclude 0 stock
+          $lt: 8, // ✅ keep fast-selling condition
+        },
+      },
+    },
+    {
+      $sort: { totalStock: 1 },
+    },
+  ]);
+
+  res.json(products);
+});
+
+// FEATURED PRODUCTS
+export const featuredProducts = catchAsync(async (req, res, next) => {
+  const products = await Product.find({
+    isDeleted: false,
+    isFeatured: true,
+  })
+    .sort("-createdAt")
+    .limit(4); // optional but recommended
+
+  res.json(products);
+});
 
 // GET ONE
-export const getProduct = async (req, res) => {
+export const getProduct = catchAsync(async (req, res, next) => {
   const product = await Product.findOne({
-    _id: req.params.id,
+    slug: req.params.slug,
     isDeleted: false,
+  }).populate("category");
+
+  if (!product) {
+    return next(new AppError("Product not found", 404));
+  }
+
+  res.json(product);
+});
+
+// UPDATE
+export const updateProduct = catchAsync(async (req, res, next) => {
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
   });
 
   if (!product) {
-    return res.status(404).json({ message: "Product not found" });
+    return next(new AppError("No product found with that ID", 404));
   }
 
   res.json(product);
-};
-
-// UPDATE
-export const updateProduct = async (req, res) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-
-  res.json(product);
-};
+});
 
 // DELETE
-export const deleteProduct = async (req, res) => {
-  await Product.findByIdAndUpdate(req.params.id, {
+export const deleteProduct = catchAsync(async (req, res, next) => {
+  const product = await Product.findByIdAndUpdate(req.params.id, {
     isDeleted: true,
   });
 
+  if (!product) {
+    return next(new AppError("No product found with that ID", 404));
+  }
+
   res.json({ message: "Product soft deleted" });
-};
+});

@@ -1,18 +1,57 @@
 import mongoose from "mongoose";
+
+const variantSchema = new mongoose.Schema(
+  {
+    color: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    // optional (future-proof)
+    size: {
+      type: String,
+      trim: true,
+    },
+
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+  },
+  { _id: false },
+);
+
 const productSchema = new mongoose.Schema(
   {
     name: {
-      ar: { type: String, required: true },
-      en: { type: String, required: true },
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    slug: {
+      type: String,
+      lowercase: true,
+      unique: true,
+      index: true,
     },
     description: {
-      ar: String,
-      en: String,
+      type: String,
+      trim: true,
     },
 
-    imageUrl: { type: String, required: true },
+    imageUrl: {
+      type: String,
+      required: true,
+    },
 
-    price: { type: Number, required: true },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
 
     category: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,27 +59,33 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
-    gender: {
-      type: String,
-      enum: ["men", "women"],
-      required: true,
+    // ✅ USE the schema here
+    variants: {
+      type: [variantSchema],
+      default: [],
     },
 
-    sizes: [
-      {
-        size: { type: String }, // S, M, L, XL
-        stock: { type: Number, default: 0 },
-      },
-    ],
-
-    colors: [String],
+    tags: {
+      type: [String],
+      default: [],
+    },
 
     isDeleted: {
       type: Boolean,
       default: false,
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
   },
   { timestamps: true },
 );
 
-export default mongoose.model("Product", productSchema);
+// Check if the model exists, otherwise compile it
+const Product =
+  mongoose.models.Product || mongoose.model("Product", productSchema);
+
+export default Product;

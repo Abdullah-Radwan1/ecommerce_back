@@ -8,14 +8,19 @@ import {
   getProduct,
   updateProduct,
   deleteProduct,
+  fastSelling,
+  featuredProducts,
 } from "../controllers/product.controller.js";
-import { protect, adminOnly } from "../middleware.js";
+import { protect, adminOnly } from "../middleware/auth.middleware.js";
 
 router.get("/", getProducts);
-router.get("/:id", getProduct);
+router.get("/fast-selling", fastSelling);
+router.get("/featured", featuredProducts);
+
+router.get("/:slug", getProduct);
 
 router.post("/", protect, adminOnly, createProduct);
-router.put("/:id", protect, adminOnly, updateProduct);
-router.delete("/:id", protect, adminOnly, deleteProduct);
+router.put("/:slug", protect, adminOnly, updateProduct);
+router.delete("/:slug", protect, adminOnly, deleteProduct);
 
 export default router;

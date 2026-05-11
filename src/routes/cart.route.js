@@ -4,16 +4,18 @@ import {
   addToCart,
   removeFromCart,
   syncCartPrices,
+  clearCart,
 } from "../controllers/cart.controller.js";
-import { protect } from "../middleware.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
-
 router.get("/", protect, getCart);
-router.post("/", protect, addToCart);
+// router.get("/:id", protect, getCart); todo
+router.post("/add", protect, addToCart);
+router.delete("/clear", protect, clearCart);
 router.delete("/:productId", protect, removeFromCart);
 
-// 🔥 مهم
+// 🔥 Important
 router.put("/sync", protect, syncCartPrices);
 
 export default router;

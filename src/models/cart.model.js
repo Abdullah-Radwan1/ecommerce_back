@@ -14,10 +14,10 @@ const cartSchema = new mongoose.Schema(
         },
         quantity: Number,
 
-        // 🔥 snapshot price وقت الإضافة
+        // 🔥 Snapshot price at the time of addition
         priceAtAdd: Number,
 
-        // 🔥 لو السعر اتغير
+        // 🔥 If the price changed
         isPriceChanged: { type: Boolean, default: false },
       },
     ],
