@@ -11,16 +11,16 @@ import {
   fastSelling,
   featuredProducts,
 } from "../controllers/product.controller.js";
+import { upload } from "../middleware/upload.middleware.js";
 import { protect, adminOnly } from "../middleware/auth.middleware.js";
-
 router.get("/", getProducts);
 router.get("/fast-selling", fastSelling);
 router.get("/featured", featuredProducts);
 
 router.get("/:slug", getProduct);
 
-router.post("/", protect, adminOnly, createProduct);
-router.put("/:slug", protect, adminOnly, updateProduct);
+router.post("/", upload.single("image"), protect, adminOnly, createProduct);
+router.put("/:slug", upload.single("image"), protect, adminOnly, updateProduct);
 router.delete("/:slug", protect, adminOnly, deleteProduct);
 
 export default router;

@@ -4,31 +4,51 @@ import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 
 // 🔐 generate token
-export const generateToken = (res, userId) => {
-  const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+export const generateToken = (res, user) => {
+  const token = jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7d",
+    },
+  );
 
-  // Now 'res' will be the actual Express response object
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Use true in production
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  return token; // Optional: return it if you want to send it in JSON too
+  return token;
 };
 
 export const register = catchAsync(async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, phone, password } = req.body;
 
-  if (!name || !email || !password) {
-    return next(new AppError("All fields are required", 400));
+  if (!name || !password || (!email && !phone)) {
+    return next(
+      new AppError(
+        "Name, password, and either email or phone are required",
+        400,
+      ),
+    );
   }
 
-  const normalizedEmail = email.toLowerCase();
-  const existingUser = await User.findOne({ email: normalizedEmail });
+  let existingUser;
+
+  if (email) {
+    existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
+  }
+
+  if (!existingUser && phone) {
+    existingUser = await User.findOne({ phone });
+  }
 
   if (existingUser) {
     return next(new AppError("User already exists", 400));
@@ -36,18 +56,19 @@ export const register = catchAsync(async (req, res, next) => {
 
   const user = await User.create({
     name,
-    email: normalizedEmail,
+    email: email ? email.toLowerCase() : undefined,
+    phone,
     password,
   });
 
-  const token = generateToken(res, user._id);
+  const token = generateToken(res, user);
 
   const userObj = user.toObject();
   delete userObj.password;
 
   res.status(201).json({
+    token,
     user: userObj,
-    token: token,
   });
 });
 
@@ -55,29 +76,28 @@ export const register = catchAsync(async (req, res, next) => {
  * LOGIN
  */
 export const login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
-  if (!email || !password) {
-    return next(new AppError("Please provide email and password!", 400));
+  if (!identifier || !password) {
+    return next(new AppError("Please provide email/phone and password", 400));
   }
 
-  const normalizedEmail = email.toLowerCase();
+  const normalizedIdentifier = identifier.toLowerCase();
 
   const user = await User.findOne({
-    email: normalizedEmail,
+    $or: [{ email: normalizedIdentifier }, { phone: identifier }],
   });
 
   if (!user || !(await user.comparePassword(password))) {
     return next(new AppError("Invalid credentials", 401));
   }
 
-  // 🔥 set cookie
-  generateToken(res, user._id);
+  const token = generateToken(res, user);
 
   const userObj = user.toObject();
   delete userObj.password;
-
-  res.json({
+  res.status(200).json({
+    token,
     user: userObj,
   });
 });

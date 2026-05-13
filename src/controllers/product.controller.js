@@ -1,27 +1,53 @@
 import Product from "../models/Product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
-
+import { getPagination } from "../middleware/pagination.middleware.js";
 // CREATE
 export const createProduct = catchAsync(async (req, res, next) => {
-  const product = await Product.create(req.body);
+  if (req.body.variants && typeof req.body.variants === "string") {
+    try {
+      req.body.variants = JSON.parse(req.body.variants);
+    } catch (e) {
+      req.body.variants = [];
+    }
+  }
+
+  const productData = {
+    ...req.body,
+    ...(req.file && {
+      imageUrl: `${process.env.URL}/uploads/products/${req.file.filename}`,
+    }),
+  };
+  const product = await Product.create(productData);
   res.status(201).json(product);
 });
 
-import { getPagination } from "../middleware/pagination.middleware.js";
-
-// GET ALL (with filtering + pagination)
+// GET ALL (with role-based access, filtering, search, and pagination)
 export const getProducts = catchAsync(async (req, res, next) => {
-  const { category, minPrice, maxPrice, search } = req.query;
+  const { category, minPrice, maxPrice, search, status } = req.query;
 
-  const filter = { isDeleted: false };
+  // 1. Initialize empty filter
+  const filter = {};
 
-  // category
+  // 2. Role-based visibility logic
+  // Assumes your auth middleware attaches the decoded JWT payload to req.user
+  const isAdmin = req.user && req.user.role === "admin";
+
+  if (!isAdmin) {
+    // Customers ALWAYS only see active products
+    filter.isDeleted = false;
+  } else if (status) {
+    // Admins see everything by default, but can explicitly filter by status
+    if (status === "archived") filter.isActive = false;
+    if (status === "active") filter.isActive = true;
+  }
+
+  // 3. Category filtering
   if (category) {
     filter.category = category;
   }
 
-  // price range
+  // 4. Price range filtering
   if (minPrice || maxPrice) {
     filter.price = {
       ...(minPrice && { $gte: Number(minPrice) }),
@@ -29,11 +55,13 @@ export const getProducts = catchAsync(async (req, res, next) => {
     };
   }
 
-  // 🔥 search (name)
+  // 5. Search filtering (case-insensitive regex)
   if (search) {
     filter.name = { $regex: search, $options: "i" };
   }
 
+  // 6. Execute query using your pagination middleware
+  // Note: Ensure your getPagination utility also extracts and applies req.query.sort
   const results = await getPagination(Product, req, filter);
 
   res.json(results);
@@ -98,6 +126,19 @@ export const getProduct = catchAsync(async (req, res, next) => {
 
 // UPDATE
 export const updateProduct = catchAsync(async (req, res, next) => {
+  if (req.body.variants && typeof req.body.variants === "string") {
+    try {
+      req.body.variants = JSON.parse(req.body.variants);
+    } catch (e) {
+      req.body.variants = [];
+    }
+  }
+
+  // Handle image upload if a new file is provided during update
+  if (req.file) {
+    req.body.imageUrl = `${process.env.URL}/uploads/products/${req.file.filename}`;
+  }
+
   const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,

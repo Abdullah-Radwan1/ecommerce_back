@@ -13,8 +13,13 @@ export const getPagination = async (
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const sortBy = req.query.sort || "createdAt";
-  const order = req.query.order === "desc" ? -1 : 1;
+  let sortBy = req.query.sort || "createdAt";
+  let order = req.query.order === "desc" ? -1 : 1;
+
+  if (sortBy.startsWith('-')) {
+    sortBy = sortBy.substring(1);
+    order = -1;
+  }
 
   let query = Model.find(filter)
     .sort({ [sortBy]: order })

@@ -6,29 +6,25 @@ import { AppError } from "../utilities/appError.ut.js";
 // ------------------------------------------------------
 // PROTECT ROUTES
 // ------------------------------------------------------
-export const protect = catchAsync(async (req, res, next) => {
-  // 🔥 Read token from cookie
-  const token = req.cookies.token;
+export const protect = (req, res, next) => {
+  try {
+    const token = req.cookies.token;
 
-  if (!token) {
-    return next(new AppError("Not authorized, no token", 401));
+    if (!token) {
+      return next(new AppError("Not authenticated", 401));
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // decoded = { id, role, iat, exp }
+
+    req.user = decoded;
+
+    next();
+  } catch (error) {
+    return next(new AppError("Invalid token", 401));
   }
-
-  // 🔥 Verify token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-  // 🔥 Find user
-  const user = await User.findById(decoded.id).select("-password");
-
-  if (!user) {
-    return next(new AppError("User not found", 401));
-  }
-
-  // 🔥 Attach user to request
-  req.user = user;
-
-  next();
-});
+};
 
 // ------------------------------------------------------
 // ADMIN ONLY

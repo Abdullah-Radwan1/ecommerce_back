@@ -34,9 +34,23 @@ export const getMyRefunds = catchAsync(async (req, res, next) => {
   res.json(refunds);
 });
 
+import { getPagination } from "../middleware/pagination.middleware.js";
+
 // 👑 admin: get all refunds
 export const getAllRefunds = catchAsync(async (req, res, next) => {
-  const refunds = await Refund.find().populate("user").populate("order");
+  const { search, status } = req.query;
+  const filter = {};
+
+  if (status && status !== 'all') {
+    filter.status = status;
+  }
+
+  // To search by reason
+  if (search) {
+    filter.reason = { $regex: search, $options: "i" };
+  }
+
+  const refunds = await getPagination(Refund, req, filter, ["user", "order"]);
 
   res.json(refunds);
 });

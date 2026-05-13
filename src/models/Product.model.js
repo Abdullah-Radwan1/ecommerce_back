@@ -70,6 +70,11 @@ const productSchema = new mongoose.Schema(
       default: [],
     },
 
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
