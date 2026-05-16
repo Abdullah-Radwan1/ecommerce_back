@@ -24,7 +24,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
 
 // GET ALL (with role-based access, filtering, search, and pagination)
 export const getProducts = catchAsync(async (req, res, next) => {
-  const { category, minPrice, maxPrice, search, status } = req.query;
+  const { category, subcategory, minPrice, maxPrice, search, status } = req.query;
 
   // 1. Initialize empty filter
   const filter = {};
@@ -46,6 +46,9 @@ export const getProducts = catchAsync(async (req, res, next) => {
   if (category) {
     filter.category = category;
   }
+  if (subcategory) {
+    filter.subcategory = subcategory;
+  }
 
   // 4. Price range filtering
   if (minPrice || maxPrice) {
@@ -62,7 +65,7 @@ export const getProducts = catchAsync(async (req, res, next) => {
 
   // 6. Execute query using your pagination middleware
   // Note: Ensure your getPagination utility also extracts and applies req.query.sort
-  const results = await getPagination(Product, req, filter);
+  const results = await getPagination(Product, req, filter, ["category", "subcategory"]);
 
   res.json(results);
 });
@@ -115,7 +118,7 @@ export const getProduct = catchAsync(async (req, res, next) => {
   const product = await Product.findOne({
     slug: req.params.slug,
     isDeleted: false,
-  }).populate("category");
+  }).populate(["category", "subcategory"]);
 
   if (!product) {
     return next(new AppError("Product not found", 404));

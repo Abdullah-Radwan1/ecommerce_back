@@ -8,39 +8,78 @@ dotenv.config();
 const seed = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
+
     console.log("DB connected");
 
-    // clear DB
+    // Clear DB
     await Category.deleteMany();
     await Product.deleteMany();
 
-    // ✅ Categories
-    const categories = await Category.insertMany([
-      { name: "Accessories", slug: "accessories" },
-      { name: "Chairs", slug: "chairs" },
-      { name: "Clocks", slug: "clocks" },
-      { name: "Lamps", slug: "lamps" },
-      { name: "Tables", slug: "tables" },
-    ]);
+    // =====================================================
+    // MAIN CATEGORIES
+    // =====================================================
 
-    const accessoriesCategoryId = categories.find(
-      (c) => c.slug === "accessories",
-    )._id;
-    const chairsCategoryId = categories.find((c) => c.slug === "chairs")._id;
-    const clocksCategoryId = categories.find((c) => c.slug === "clocks")._id;
-    const lampsCategoryId = categories.find((c) => c.slug === "lamps")._id;
-    const tablesCategoryId = categories.find((c) => c.slug === "tables")._id;
+    const furniture = await Category.create({
+      name: "Furniture",
+      slug: "furniture",
+    });
 
-    // ✅ Products
+    const decor = await Category.create({
+      name: "Decor",
+      slug: "decor",
+    });
+
+    const lighting = await Category.create({
+      name: "Lighting",
+      slug: "lighting",
+    });
+
+    const kitchen = await Category.create({
+      name: "Kitchen",
+      slug: "kitchen",
+    });
+
+    // =====================================================
+    // SUBCATEGORIES
+    // =====================================================
+
+    const chairs = await Category.create({
+      name: "Chairs",
+      slug: "chairs",
+      parentId: furniture._id,
+    });
+
+    const clocks = await Category.create({
+      name: "Clocks",
+      slug: "clocks",
+      parentId: decor._id,
+    });
+
+    const lamps = await Category.create({
+      name: "Lamps",
+      slug: "lamps",
+      parentId: lighting._id,
+    });
+
+    const drinkware = await Category.create({
+      name: "Drinkware",
+      slug: "drinkware",
+      parentId: kitchen._id,
+    });
+
+    // =====================================================
+    // PRODUCTS
+    // =====================================================
+
     await Product.insertMany([
-      // 1
       {
         name: "Basket",
         slug: "basket",
         description: "Eco-friendly handwoven storage basket",
         imageUrl: "/products/basket.jpg",
+        category: decor._id,
+        subcategory: clocks._id,
         price: 50,
-        category: accessoriesCategoryId,
         variants: [
           { color: "beige", stock: 12 },
           { color: "natural", stock: 8 },
@@ -48,14 +87,14 @@ const seed = async () => {
         tags: ["storage", "handmade", "eco-friendly"],
       },
 
-      // 2
       {
         name: "Black Chair",
         slug: "black-chair",
         description: "Modern ergonomic chair",
         imageUrl: "/products/black-chair.jpg",
+        category: furniture._id,
+        subcategory: chairs._id,
         price: 120,
-        category: chairsCategoryId,
         variants: [
           { color: "black", stock: 15 },
           { color: "gray", stock: 5 },
@@ -63,26 +102,26 @@ const seed = async () => {
         tags: ["modern", "ergonomic"],
       },
 
-      // 3 ❌ OUT OF STOCK
       {
         name: "Black Clock",
         slug: "black-clock",
         description: "Minimalist silent wall clock",
         imageUrl: "/products/black-clock.jpg",
+        category: decor._id,
+        subcategory: clocks._id,
         price: 70,
-        category: clocksCategoryId,
         variants: [{ color: "black", stock: 0 }],
         tags: ["minimalist", "silent"],
       },
 
-      // 4
       {
         name: "Cup",
         slug: "cup",
         description: "Ceramic drinkware cup",
         imageUrl: "/products/cup.webp",
+        category: kitchen._id,
+        subcategory: drinkware._id,
         price: 15,
-        category: accessoriesCategoryId,
         variants: [
           { color: "white", stock: 6 },
           { color: "beige", stock: 7 },
@@ -90,14 +129,14 @@ const seed = async () => {
         tags: ["ceramic", "kitchen"],
       },
 
-      // 5
       {
         name: "Dark Lamp",
         slug: "dark-lamp",
         description: "Adjustable ambient lamp",
         imageUrl: "/products/dark-lamp.jpg",
+        category: lighting._id,
+        subcategory: lamps._id,
         price: 80,
-        category: lampsCategoryId,
         variants: [
           { color: "black", stock: 10 },
           { color: "dark gray", stock: 5 },
@@ -106,14 +145,14 @@ const seed = async () => {
         isFeatured: true,
       },
 
-      // 6 ⚠️ LOW STOCK
       {
         name: "Drawer",
         slug: "drawer",
         description: "Wooden storage drawer unit",
         imageUrl: "/products/drawer.webp",
+        category: furniture._id,
+        subcategory: chairs._id,
         price: 150,
-        category: tablesCategoryId,
         variants: [
           { color: "wood", stock: 3 },
           { color: "brown", stock: 4 },
@@ -121,14 +160,14 @@ const seed = async () => {
         tags: ["storage", "wood"],
       },
 
-      // 7 ⚠️ LOW STOCK
       {
         name: "Golden Clock",
         slug: "golden-clock",
         description: "Luxury decorative clock",
         imageUrl: "/products/golden-clock.webp",
+        category: decor._id,
+        subcategory: clocks._id,
         price: 200,
-        category: clocksCategoryId,
         variants: [
           { color: "gold", stock: 2 },
           { color: "black-gold", stock: 1 },
@@ -136,14 +175,14 @@ const seed = async () => {
         tags: ["luxury", "decor"],
       },
 
-      // 8
       {
         name: "Gray Chair",
         slug: "gray-chair",
         description: "Comfortable fabric chair",
         imageUrl: "/products/gray-chair.jpg",
+        category: furniture._id,
+        subcategory: chairs._id,
         price: 130,
-        category: chairsCategoryId,
         variants: [
           { color: "gray", stock: 8 },
           { color: "dark gray", stock: 6 },
@@ -152,14 +191,14 @@ const seed = async () => {
         isFeatured: true,
       },
 
-      // 9
       {
         name: "Grey Clock",
         slug: "grey-clock",
         description: "Modern silent wall clock",
         imageUrl: "/products/grey-clock.jpg",
+        category: decor._id,
+        subcategory: clocks._id,
         price: 75,
-        category: clocksCategoryId,
         variants: [
           { color: "gray", stock: 9 },
           { color: "light gray", stock: 5 },
@@ -167,14 +206,14 @@ const seed = async () => {
         tags: ["wall-clock", "modern"],
       },
 
-      // 10
       {
         name: "White Chair",
         slug: "white-chair",
         description: "Minimal white chair",
         imageUrl: "/products/white-chair.jpg",
+        category: furniture._id,
+        subcategory: chairs._id,
         price: 140,
-        category: chairsCategoryId,
         variants: [
           { color: "white", stock: 7 },
           { color: "cream", stock: 8 },
@@ -183,14 +222,14 @@ const seed = async () => {
         isFeatured: true,
       },
 
-      // 11
       {
         name: "Wooden Table",
         slug: "wooden-table",
         description: "Natural wooden table",
         imageUrl: "/products/wooden-table.jpg",
+        category: furniture._id,
+        subcategory: chairs._id,
         price: 300,
-        category: tablesCategoryId,
         variants: [
           { color: "wood", stock: 13 },
           { color: "dark wood", stock: 9 },
@@ -199,14 +238,14 @@ const seed = async () => {
         isFeatured: true,
       },
 
-      // 12
       {
         name: "Lamp",
         slug: "lamp",
         description: "Minimal ambient lamp",
         imageUrl: "/products/lamp.jpg",
+        category: lighting._id,
+        subcategory: lamps._id,
         price: 90,
-        category: lampsCategoryId,
         variants: [
           { color: "white", stock: 12 },
           { color: "black", stock: 15 },
@@ -214,14 +253,14 @@ const seed = async () => {
         tags: ["minimal", "lighting"],
       },
 
-      // 13
       {
         name: "Table",
         slug: "table",
         description: "Multi-purpose table",
         imageUrl: "/products/table.jpg",
+        category: furniture._id,
+        subcategory: chairs._id,
         price: 250,
-        category: tablesCategoryId,
         variants: [
           { color: "wood", stock: 11 },
           { color: "brown", stock: 7 },
@@ -229,14 +268,14 @@ const seed = async () => {
         tags: ["multi-purpose", "modern"],
       },
 
-      // 14
       {
         name: "Teapot",
         slug: "teapot",
         description: "Ceramic heat-retaining teapot",
         imageUrl: "/products/teapot.webp",
+        category: kitchen._id,
+        subcategory: drinkware._id,
         price: 60,
-        category: accessoriesCategoryId,
         variants: [
           { color: "white", stock: 5 },
           { color: "beige", stock: 5 },
@@ -244,14 +283,14 @@ const seed = async () => {
         tags: ["tea", "kitchen"],
       },
 
-      // 15 ❌ OUT OF STOCK
       {
         name: "Vase",
         slug: "vase",
         description: "Decorative ceramic vase",
         imageUrl: "/products/vase.jpg",
+        category: decor._id,
+        subcategory: clocks._id,
         price: 70,
-        category: accessoriesCategoryId,
         variants: [
           { color: "white", stock: 0 },
           { color: "beige", stock: 0 },
@@ -261,6 +300,7 @@ const seed = async () => {
     ]);
 
     console.log("Seeding done ✅");
+
     process.exit();
   } catch (err) {
     console.error(err);

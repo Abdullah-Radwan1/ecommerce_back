@@ -34,7 +34,7 @@ export const getApprovedTestimonials = catchAsync(async (req, res, next) => {
 export const getAllTestimonials = catchAsync(async (req, res, next) => {
   const filter = { isDeleted: false };
   const results = await getPagination(Testimonial, req, filter, [
-    { path: "user", select: "name email" },
+    { path: "User", select: "name email" },
   ]);
   res.json(results);
 });
@@ -46,7 +46,7 @@ export const approveTestimonial = catchAsync(async (req, res, next) => {
   const testimonial = await Testimonial.findByIdAndUpdate(
     req.params.id,
     { isApproved: true },
-    { new: true }
+    { new: true },
   );
   if (!testimonial) {
     return next(new AppError("Testimonial not found", 404));

@@ -19,6 +19,7 @@ export const protect = (req, res, next) => {
     // decoded = { id, role, iat, exp }
 
     req.user = decoded;
+    req.user._id = decoded.id; // Map id to _id so all endpoints work
 
     next();
   } catch (error) {
