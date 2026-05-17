@@ -1,4 +1,4 @@
-import Product from "../models/Product.model.js";
+import Product from "../models/product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 import { getPagination } from "../middleware/pagination.middleware.js";
@@ -19,12 +19,14 @@ export const createProduct = catchAsync(async (req, res, next) => {
     }),
   };
   const product = await Product.create(productData);
-  res.status(201).json(product);
+  const populatedProduct = await Product.findById(product._id).populate(["category", "subcategory"]);
+  res.status(201).json(populatedProduct);
 });
 
 // GET ALL (with role-based access, filtering, search, and pagination)
 export const getProducts = catchAsync(async (req, res, next) => {
-  const { category, subcategory, minPrice, maxPrice, search, status } = req.query;
+  const { category, subcategory, minPrice, maxPrice, search, status } =
+    req.query;
 
   // 1. Initialize empty filter
   const filter = {};
@@ -65,7 +67,10 @@ export const getProducts = catchAsync(async (req, res, next) => {
 
   // 6. Execute query using your pagination middleware
   // Note: Ensure your getPagination utility also extracts and applies req.query.sort
-  const results = await getPagination(Product, req, filter, ["category", "subcategory"]);
+  const results = await getPagination(Product, req, filter, [
+    "category",
+    "subcategory",
+  ]);
 
   res.json(results);
 });
@@ -151,7 +156,8 @@ export const updateProduct = catchAsync(async (req, res, next) => {
     return next(new AppError("No product found with that ID", 404));
   }
 
-  res.json(product);
+  const populatedProduct = await Product.findById(product._id).populate(["category", "subcategory"]);
+  res.json(populatedProduct);
 });
 
 // DELETE
@@ -165,4 +171,27 @@ export const deleteProduct = catchAsync(async (req, res, next) => {
   }
 
   res.json({ message: "Product soft deleted" });
+});
+
+// GET RELATED PRODUCTS (from same category, excluding current product)
+export const getRelatedProducts = catchAsync(async (req, res, next) => {
+  const currentProduct = await Product.findOne({
+    slug: req.params.slug,
+    isDeleted: false,
+  });
+
+  if (!currentProduct) {
+    return next(new AppError("Product not found", 404));
+  }
+
+  const related = await Product.find({
+    category: currentProduct.category,
+    _id: { $ne: currentProduct._id },
+    isDeleted: false,
+    isActive: true,
+  })
+    .populate(["category", "subcategory"])
+    .limit(4);
+
+  res.json(related);
 });

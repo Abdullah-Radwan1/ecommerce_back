@@ -1,5 +1,5 @@
-import Order from "../../models/Order.model.js";
-import Product from "../../models/Product.model.js";
+import Order from "../../models/order.model.js";
+import Product from "../../models/product.model.js";
 import { catchAsync } from "../../utilities/catchAsync.ut.js";
 
 /**
@@ -43,7 +43,9 @@ export const getStats = catchAsync(async (req, res, next) => {
       $group: {
         _id: "$items.product",
         totalQuantity: { $sum: "$items.quantity" },
-        totalSales: { $sum: { $multiply: ["$items.quantity", "$items.price"] } },
+        totalSales: {
+          $sum: { $multiply: ["$items.quantity", "$items.price"] },
+        },
       },
     },
     { $sort: { totalQuantity: -1 } },

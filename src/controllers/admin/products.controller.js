@@ -1,5 +1,6 @@
 import { getPagination } from "../../middleware/pagination.middleware.js";
 import { catchAsync } from "../../utilities/catchAsync.ut.js";
+import Product from "../../models/product.model.js";
 
 // GET ALL (with role-based access, filtering, search, and pagination)
 export const getProducts = catchAsync(async (req, res, next) => {
@@ -41,7 +42,10 @@ export const getProducts = catchAsync(async (req, res, next) => {
 
   // 6. Execute query using your pagination middleware
   // Note: Ensure your getPagination utility also extracts and applies req.query.sort
-  const results = await getPagination(Product, req, filter);
+  const results = await getPagination(Product, req, filter, [
+    "category",
+    "subcategory",
+  ]);
 
   res.json(results);
 });

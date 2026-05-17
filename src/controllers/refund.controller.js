@@ -1,6 +1,6 @@
 import Refund from "../models/refund.model.js";
 import Order from "../models/order.model.js";
-import Product from "../models/Product.model.js";
+import Product from "../models/product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 
@@ -41,7 +41,7 @@ export const getAllRefunds = catchAsync(async (req, res, next) => {
   const { search, status } = req.query;
   const filter = {};
 
-  if (status && status !== 'all') {
+  if (status && status !== "all") {
     filter.status = status;
   }
 
@@ -75,8 +75,15 @@ export const handleRefund = catchAsync(async (req, res, next) => {
     for (let item of order.items) {
       const product = await Product.findById(item.product);
 
-      if (product) {
-        product.stock += item.quantity;
+      if (product && product.variants && product.variants.length > 0) {
+        const variant = product.variants.find(
+          (v) => (v.color || "").toLowerCase() === (item.color || "").toLowerCase()
+        );
+        if (variant) {
+          variant.stock = (variant.stock || 0) + item.quantity;
+        } else {
+          product.variants[0].stock = (product.variants[0].stock || 0) + item.quantity;
+        }
         await product.save();
       }
     }

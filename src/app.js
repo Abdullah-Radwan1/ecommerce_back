@@ -11,6 +11,7 @@ import adminRoutes from "./routes/admin.route.js";
 import adminProductsRoutes from "./routes/admin.products.routes.js";
 import revenueRoutes from "./routes/revenue.route.js";
 import userRoutes from "./routes/user.route.js";
+import addressRoutes from "./routes/address.route.js";
 
 import { AppError } from "./utilities/appError.ut.js";
 import dotenv from "dotenv";
@@ -40,6 +41,7 @@ app.use("/v1/admin", adminRoutes);
 app.use("/v1/admin/products", adminProductsRoutes);
 app.use("/v1/admin/revenue", revenueRoutes);
 app.use("/v1/users", userRoutes);
+app.use("/v1/addresses", addressRoutes);
 
 app.all("{*path}", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

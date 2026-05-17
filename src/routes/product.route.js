@@ -6,6 +6,7 @@ import {
   createProduct,
   getProducts,
   getProduct,
+  getRelatedProducts,
   updateProduct,
   deleteProduct,
   fastSelling,
@@ -16,6 +17,7 @@ import { protect, adminOnly } from "../middleware/auth.middleware.js";
 router.get("/", getProducts);
 router.get("/fast-selling", fastSelling);
 router.get("/featured", featuredProducts);
+router.get("/related/:slug", getRelatedProducts);
 
 router.get("/:slug", getProduct);
 

@@ -1,5 +1,5 @@
 import Cart from "../models/cart.model.js";
-import Product from "../models/Product.model.js";
+import Product from "../models/product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 
 // GET CART
@@ -9,7 +9,7 @@ export const getCart = catchAsync(async (req, res, next) => {
   const skip = (page - 1) * limit;
 
   const cart = await Cart.findOne({ user: req.user._id }).populate(
-    "items.product"
+    "items.product",
   );
 
   if (!cart) {
@@ -35,7 +35,7 @@ export const getCart = catchAsync(async (req, res, next) => {
 
 // ADD TO CART
 export const addToCart = catchAsync(async (req, res, next) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, color } = req.body;
 
   let cart = await Cart.findOne({ user: req.user._id });
 
@@ -46,7 +46,7 @@ export const addToCart = catchAsync(async (req, res, next) => {
   const product = await Product.findById(productId);
 
   const existingItem = cart.items.find(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() === productId && (item.color || "").toLowerCase() === (color || "").toLowerCase()
   );
 
   if (existingItem) {
@@ -54,6 +54,7 @@ export const addToCart = catchAsync(async (req, res, next) => {
   } else {
     cart.items.push({
       product: productId,
+      color: color || "",
       quantity,
       priceAtAdd: product.price,
     });
@@ -88,10 +89,18 @@ export const syncCartPrices = catchAsync(async (req, res, next) => {
 // REMOVE ITEM
 export const removeFromCart = catchAsync(async (req, res, next) => {
   const cart = await Cart.findOne({ user: req.user._id });
+  const { color } = req.query;
 
-  cart.items = cart.items.filter(
-    (item) => item.product.toString() !== req.params.productId
-  );
+  cart.items = cart.items.filter((item) => {
+    const isSameProduct = item.product.toString() === req.params.productId;
+    if (isSameProduct) {
+      if (color) {
+        return (item.color || "").toLowerCase() !== color.toLowerCase();
+      }
+      return false;
+    }
+    return true;
+  });
 
   await cart.save();
 

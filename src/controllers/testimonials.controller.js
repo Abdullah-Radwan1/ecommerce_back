@@ -34,7 +34,7 @@ export const getApprovedTestimonials = catchAsync(async (req, res, next) => {
 export const getAllTestimonials = catchAsync(async (req, res, next) => {
   const filter = { isDeleted: false };
   const results = await getPagination(Testimonial, req, filter, [
-    { path: "User", select: "name email" },
+    { path: "user", select: "name email" },
   ]);
   res.json(results);
 });

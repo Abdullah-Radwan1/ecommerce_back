@@ -1,4 +1,4 @@
-import purchase from "../models/Order.model.js";
+import purchase from "../models/order.model.js";
 
 export const getsSalesReport = async (req, res) => {
   try {
@@ -18,21 +18,28 @@ export const getsSalesReport = async (req, res) => {
     // All stages, including $facet, must live inside this single array
     const summary = await purchase.aggregate([
       { $match: matchStage },
-      { $lookup: { from: "users", localField: "user", foreignField: "_id", as: "user" } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
       { $unwind: "$user" },
       { $unwind: "$items" },
       {
         $lookup: {
           from: "products",
           localField: "items.product",
-          foreignField: "_id", 
+          foreignField: "_id",
           as: "product",
         },
       },
       { $unwind: "$product" },
       {
         $addFields: {
-          totalPrice: { $multiply: ["$items.price", "$items.quantity"] }, 
+          totalPrice: { $multiply: ["$items.price", "$items.quantity"] },
         },
       },
       {
@@ -41,8 +48,8 @@ export const getsSalesReport = async (req, res) => {
             {
               $group: {
                 _id: null,
-                totalSalesAmount: { $sum: "$totalPrice" }, 
-                totalQuantitySold: { $sum: "$items.quantity" }, 
+                totalSalesAmount: { $sum: "$totalPrice" },
+                totalQuantitySold: { $sum: "$items.quantity" },
                 orderIds: { $addToSet: "$_id" },
               },
             },
@@ -51,8 +58,8 @@ export const getsSalesReport = async (req, res) => {
                 totalSalesAmount: 1,
                 totalQuantitySold: 1,
                 totalOfPurchases: { $size: "$orderIds" },
-              }
-            }
+              },
+            },
           ],
           topProducts: [
             {
@@ -64,7 +71,7 @@ export const getsSalesReport = async (req, res) => {
                 quantity: { $sum: "$items.quantity" },
               },
             },
-            { $sort: { revenue: -1 } }, 
+            { $sort: { revenue: -1 } },
             { $limit: 5 },
           ],
           topClient: [
@@ -82,8 +89,8 @@ export const getsSalesReport = async (req, res) => {
                 name: 1,
                 totalSpent: 1,
                 totalOfPurchases: { $size: "$orderIds" },
-                totalQuantity: 1
-              }
+                totalQuantity: 1,
+              },
             },
             { $sort: { totalSpent: -1 } },
             { $limit: 5 },
@@ -92,7 +99,7 @@ export const getsSalesReport = async (req, res) => {
             {
               $group: {
                 _id: {
-                  year: { $year: "$createdAt" }, 
+                  year: { $year: "$createdAt" },
                   month: { $month: "$createdAt" },
                 },
                 totalRevenue: { $sum: "$totalPrice" },

@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
+        color: { type: String, default: "" },
         quantity: Number,
         price: Number,
       },
@@ -20,8 +21,23 @@ const orderSchema = new mongoose.Schema(
     totalPrice: Number,
     status: {
       type: String,
-      enum: ["pending", "paid", "shipped", "cancelled"],
+      enum: [
+        "pending",
+        "preparing",
+        "shipped",
+        "recieved",
+        "cancelled by admin",
+        "canceled by user",
+      ],
       default: "pending",
+    },
+    shippingAddress: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String,
+      phone: String,
     },
     isDeleted: {
       type: Boolean,

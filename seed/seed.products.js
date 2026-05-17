@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Category from "../src/models/category.model.js";
-import Product from "../src/models/Product.model.js";
+import Product from "../src/models/product.model.js";
 
 dotenv.config();
 
