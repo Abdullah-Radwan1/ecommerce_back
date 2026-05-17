@@ -12,7 +12,6 @@ const cartSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
-        color: { type: String, default: "" },
         quantity: Number,
 
         // 🔥 Snapshot price at the time of addition

@@ -11,8 +11,8 @@ export const addPurchase = catchAsync(async (req, res, next) => {
 
   try {
     const product = await Product.findOneAndUpdate(
-      { _id: productId, "variants.stock": { $gte: quantity } },
-      { $inc: { "variants.$.stock": -quantity } },
+      { _id: productId, stock: { $gte: quantity } },
+      { $inc: { stock: -quantity } },
       { new: true, session }
     );
 

@@ -75,15 +75,8 @@ export const handleRefund = catchAsync(async (req, res, next) => {
     for (let item of order.items) {
       const product = await Product.findById(item.product);
 
-      if (product && product.variants && product.variants.length > 0) {
-        const variant = product.variants.find(
-          (v) => (v.color || "").toLowerCase() === (item.color || "").toLowerCase()
-        );
-        if (variant) {
-          variant.stock = (variant.stock || 0) + item.quantity;
-        } else {
-          product.variants[0].stock = (product.variants[0].stock || 0) + item.quantity;
-        }
+      if (product) {
+        product.stock = (product.stock || 0) + item.quantity;
         await product.save();
       }
     }

@@ -7,21 +7,12 @@ import { AppError } from "../utilities/appError.ut.js";
 import User from "../models/user.model.js";
 import mongoose from "mongoose";
 // Helper to return product quantities to stock when order is cancelled
-const increaseProductStock = async (productId, color, quantity) => {
+const increaseProductStock = async (productId, quantity) => {
   const product = await Product.findById(productId);
   if (!product) return;
 
-  if (product.variants && product.variants.length > 0) {
-    const variant = product.variants.find(
-      (v) => (v.color || "").toLowerCase() === (color || "").toLowerCase(),
-    );
-    if (variant) {
-      variant.stock = (variant.stock || 0) + quantity;
-    } else {
-      product.variants[0].stock = (product.variants[0].stock || 0) + quantity;
-    }
-    await product.save();
-  }
+  product.stock = (product.stock || 0) + quantity;
+  await product.save();
 };
 
 // CREATE ORDER
@@ -56,35 +47,19 @@ export const createOrder = catchAsync(async (req, res, next) => {
         return next(new AppError(`Product ${item.product} not found`, 404));
       }
 
-      const chosenColor = item.color || "";
-
-      let variant = null;
-
-      if (product.variants?.length > 0) {
-        variant = product.variants.find(
-          (v) => (v.color || "").toLowerCase() === chosenColor.toLowerCase(),
-        );
-      }
-
-      if (!variant) {
-        variant = product.variants?.[0];
-      }
-
-      if (!variant || (variant.stock || 0) < item.quantity) {
+      if ((product.stock || 0) < item.quantity) {
         await session.abortTransaction();
 
         return next(
           new AppError(
-            `Insufficient stock for product: ${product.name} in color: ${
-              chosenColor || "Default"
-            }. Available: ${variant?.stock || 0}`,
+            `Insufficient stock for product: ${product.name}. Available: ${product.stock || 0}`,
             400,
           ),
         );
       }
 
       // decrease stock
-      variant.stock -= item.quantity;
+      product.stock -= item.quantity;
 
       await product.save({ session });
 
@@ -94,7 +69,6 @@ export const createOrder = catchAsync(async (req, res, next) => {
         product: product._id,
         name: product.name,
         imageUrl: product.imageUrl,
-        color: chosenColor,
         quantity: item.quantity,
         price: product.price,
       });
@@ -256,7 +230,7 @@ export const updateOrderStatus = catchAsync(async (req, res, next) => {
     oldStatus !== "canceled by user"
   ) {
     for (let item of order.items) {
-      await increaseProductStock(item.product, item.color, item.quantity);
+      await increaseProductStock(item.product, item.quantity);
     }
   }
 
@@ -288,7 +262,7 @@ export const cancelMyOrder = catchAsync(async (req, res, next) => {
 
   // Manage stock updating: return the quantities to stock
   for (let item of order.items) {
-    await increaseProductStock(item.product, item.color, item.quantity);
+    await increaseProductStock(item.product, item.quantity);
   }
 
   res.status(200).json({

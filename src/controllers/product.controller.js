@@ -4,14 +4,6 @@ import { AppError } from "../utilities/appError.ut.js";
 import { getPagination } from "../middleware/pagination.middleware.js";
 // CREATE
 export const createProduct = catchAsync(async (req, res, next) => {
-  if (req.body.variants && typeof req.body.variants === "string") {
-    try {
-      req.body.variants = JSON.parse(req.body.variants);
-    } catch (e) {
-      req.body.variants = [];
-    }
-  }
-
   const productData = {
     ...req.body,
     ...(req.file && {
@@ -77,31 +69,10 @@ export const getProducts = catchAsync(async (req, res, next) => {
 
 // FAST SELLING (low stock)
 export const fastSelling = catchAsync(async (req, res, next) => {
-  const products = await Product.aggregate([
-    {
-      $match: {
-        isDeleted: false,
-      },
-    },
-    {
-      $addFields: {
-        totalStock: {
-          $sum: "$variants.stock",
-        },
-      },
-    },
-    {
-      $match: {
-        totalStock: {
-          $gt: 0, // ✅ exclude 0 stock
-          $lt: 8, // ✅ keep fast-selling condition
-        },
-      },
-    },
-    {
-      $sort: { totalStock: 1 },
-    },
-  ]);
+  const products = await Product.find({
+    isDeleted: false,
+    stock: { $gt: 0, $lt: 8 },
+  }).sort({ stock: 1 });
 
   res.json(products);
 });
@@ -134,14 +105,6 @@ export const getProduct = catchAsync(async (req, res, next) => {
 
 // UPDATE
 export const updateProduct = catchAsync(async (req, res, next) => {
-  if (req.body.variants && typeof req.body.variants === "string") {
-    try {
-      req.body.variants = JSON.parse(req.body.variants);
-    } catch (e) {
-      req.body.variants = [];
-    }
-  }
-
   // Handle image upload if a new file is provided during update
   if (req.file) {
     req.body.imageUrl = `${process.env.URL}/uploads/products/${req.file.filename}`;

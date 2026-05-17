@@ -13,7 +13,6 @@ const orderSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
-        color: { type: String, default: "" },
         quantity: Number,
         price: Number,
       },

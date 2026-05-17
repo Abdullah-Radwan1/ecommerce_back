@@ -1,28 +1,5 @@
 import mongoose from "mongoose";
 
-const variantSchema = new mongoose.Schema(
-  {
-    color: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    // optional (future-proof)
-    size: {
-      type: String,
-      trim: true,
-    },
-
-    stock: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-  },
-  { _id: false },
-);
-
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -65,10 +42,11 @@ const productSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ✅ USE the schema here
-    variants: {
-      type: [variantSchema],
-      default: [],
+    stock: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
     },
 
     tags: {

@@ -80,10 +80,7 @@ const seed = async () => {
         category: decor._id,
         subcategory: clocks._id,
         price: 50,
-        variants: [
-          { color: "beige", stock: 12 },
-          { color: "natural", stock: 8 },
-        ],
+        stock: 20,
         tags: ["storage", "handmade", "eco-friendly"],
       },
 
@@ -95,10 +92,7 @@ const seed = async () => {
         category: furniture._id,
         subcategory: chairs._id,
         price: 120,
-        variants: [
-          { color: "black", stock: 15 },
-          { color: "gray", stock: 5 },
-        ],
+        stock: 20,
         tags: ["modern", "ergonomic"],
       },
 
@@ -110,7 +104,7 @@ const seed = async () => {
         category: decor._id,
         subcategory: clocks._id,
         price: 70,
-        variants: [{ color: "black", stock: 0 }],
+        stock: 0,
         tags: ["minimalist", "silent"],
       },
 
@@ -122,10 +116,7 @@ const seed = async () => {
         category: kitchen._id,
         subcategory: drinkware._id,
         price: 15,
-        variants: [
-          { color: "white", stock: 6 },
-          { color: "beige", stock: 7 },
-        ],
+        stock: 13,
         tags: ["ceramic", "kitchen"],
       },
 
@@ -137,10 +128,7 @@ const seed = async () => {
         category: lighting._id,
         subcategory: lamps._id,
         price: 80,
-        variants: [
-          { color: "black", stock: 10 },
-          { color: "dark gray", stock: 5 },
-        ],
+        stock: 15,
         tags: ["ambient", "adjustable"],
         isFeatured: true,
       },
@@ -153,10 +141,7 @@ const seed = async () => {
         category: furniture._id,
         subcategory: chairs._id,
         price: 150,
-        variants: [
-          { color: "wood", stock: 3 },
-          { color: "brown", stock: 4 },
-        ],
+        stock: 7,
         tags: ["storage", "wood"],
       },
 
@@ -168,10 +153,7 @@ const seed = async () => {
         category: decor._id,
         subcategory: clocks._id,
         price: 200,
-        variants: [
-          { color: "gold", stock: 2 },
-          { color: "black-gold", stock: 1 },
-        ],
+        stock: 3,
         tags: ["luxury", "decor"],
       },
 
@@ -183,10 +165,7 @@ const seed = async () => {
         category: furniture._id,
         subcategory: chairs._id,
         price: 130,
-        variants: [
-          { color: "gray", stock: 8 },
-          { color: "dark gray", stock: 6 },
-        ],
+        stock: 14,
         tags: ["comfortable", "modern"],
         isFeatured: true,
       },
@@ -199,10 +178,7 @@ const seed = async () => {
         category: decor._id,
         subcategory: clocks._id,
         price: 75,
-        variants: [
-          { color: "gray", stock: 9 },
-          { color: "light gray", stock: 5 },
-        ],
+        stock: 14,
         tags: ["wall-clock", "modern"],
       },
 
@@ -214,10 +190,7 @@ const seed = async () => {
         category: furniture._id,
         subcategory: chairs._id,
         price: 140,
-        variants: [
-          { color: "white", stock: 7 },
-          { color: "cream", stock: 8 },
-        ],
+        stock: 15,
         tags: ["minimal", "dining"],
         isFeatured: true,
       },
@@ -230,10 +203,7 @@ const seed = async () => {
         category: furniture._id,
         subcategory: chairs._id,
         price: 300,
-        variants: [
-          { color: "wood", stock: 13 },
-          { color: "dark wood", stock: 9 },
-        ],
+        stock: 22,
         tags: ["wood", "natural"],
         isFeatured: true,
       },
@@ -246,10 +216,7 @@ const seed = async () => {
         category: lighting._id,
         subcategory: lamps._id,
         price: 90,
-        variants: [
-          { color: "white", stock: 12 },
-          { color: "black", stock: 15 },
-        ],
+        stock: 27,
         tags: ["minimal", "lighting"],
       },
 
@@ -261,10 +228,7 @@ const seed = async () => {
         category: furniture._id,
         subcategory: chairs._id,
         price: 250,
-        variants: [
-          { color: "wood", stock: 11 },
-          { color: "brown", stock: 7 },
-        ],
+        stock: 18,
         tags: ["multi-purpose", "modern"],
       },
 
@@ -276,10 +240,7 @@ const seed = async () => {
         category: kitchen._id,
         subcategory: drinkware._id,
         price: 60,
-        variants: [
-          { color: "white", stock: 5 },
-          { color: "beige", stock: 5 },
-        ],
+        stock: 10,
         tags: ["tea", "kitchen"],
       },
 
@@ -291,10 +252,7 @@ const seed = async () => {
         category: decor._id,
         subcategory: clocks._id,
         price: 70,
-        variants: [
-          { color: "white", stock: 0 },
-          { color: "beige", stock: 0 },
-        ],
+        stock: 0,
         tags: ["decor", "ceramic"],
       },
     ]);
