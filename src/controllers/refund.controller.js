@@ -1,4 +1,4 @@
-import Refund from "../models/refund.model.js";
+import Refund from "../models/Refund.model.js";
 import Order from "../models/Order.model.js";
 import Product from "../models/Product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";

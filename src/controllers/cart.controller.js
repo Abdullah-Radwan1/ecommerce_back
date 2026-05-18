@@ -1,4 +1,4 @@
-import Cart from "../models/cart.model.js";
+import Cart from "../models/Cart.model.js";
 import Product from "../models/Product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 

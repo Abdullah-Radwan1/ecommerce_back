@@ -1,4 +1,4 @@
-import Category from "../models/category.model.js";
+import Category from "../models/Category.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 import slugify from "slugify";
