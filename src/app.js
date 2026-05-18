@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import productRoutes from "./routes/product.route.js";
 import authRoutes from "./routes/auth.route.js";
@@ -14,12 +17,10 @@ import userRoutes from "./routes/user.route.js";
 import addressRoutes from "./routes/address.route.js";
 
 import { AppError } from "./utilities/appError.ut.js";
-import dotenv from "dotenv";
 import { errorHandler } from "./middleware/errorhandler.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 const app = express();
-dotenv.config();
 
 app.use(express.json());
 const corsOptions = {
