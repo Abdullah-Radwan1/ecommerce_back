@@ -1,4 +1,4 @@
-import Testimonial from "../models/Testimonial.model.js";
+import Testimonial from "../models/testimonial.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 

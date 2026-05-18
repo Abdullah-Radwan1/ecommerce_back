@@ -1,4 +1,4 @@
-import Address from "../models/Address.model.js";
+import Address from "../models/address.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 

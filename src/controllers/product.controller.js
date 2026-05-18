@@ -1,4 +1,4 @@
-import Product from "../models/product.model.js";
+import Product from "../models/Product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 import { getPagination } from "../middleware/pagination.middleware.js";

@@ -1,4 +1,4 @@
-import purchase from "../models/order.model.js";
+import purchase from "../models/Order.model.js";
 
 export const getsSalesReport = async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 import Refund from "../models/refund.model.js";
-import Order from "../models/order.model.js";
-import Product from "../models/product.model.js";
+import Order from "../models/Order.model.js";
+import Product from "../models/Product.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
 

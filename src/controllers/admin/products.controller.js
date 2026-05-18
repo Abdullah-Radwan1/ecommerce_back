@@ -1,6 +1,6 @@
 import { getPagination } from "../../middleware/pagination.middleware.js";
 import { catchAsync } from "../../utilities/catchAsync.ut.js";
-import Product from "../../models/product.model.js";
+import Product from "../../models/Product.model.js";
 
 // GET ALL (with role-based access, filtering, search, and pagination)
 export const getProducts = catchAsync(async (req, res, next) => {
