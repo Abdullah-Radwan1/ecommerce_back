@@ -1,43 +1,21 @@
-// src/config/db.js
+import app from "./src/app.js";
+import { connectDB } from "./src/config/db.js";
 
-import mongoose from "mongoose";
-
-// const MONGO_URI = process.env.MONGO_URI;
-
-// if (!MONGO_URI) {
-//   throw new Error("Please define MONGO_URI");
-// }
-
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = {
-    conn: null,
-    promise: null,
-  };
+// Top-level await to block execution until DB is fully alive
+try {
+  await connectDB();
+  console.log("Database connected smoothly before server start.");
+} catch (error) {
+  console.error("Database connection failed completely:", error);
 }
 
-export const connectDB = async () => {
-  if (cached.conn) {
-    return cached.conn;
-  }
+// Conditionally listen if running locally
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(
-      "mongodb+srv://beedo:gpjHmCISncCE6yDX@cluster0.fbktsp7.mongodb.net/?appName=Cluster0",
-      {
-        bufferCommands: false,
-      },
-    );
-  }
-
-  try {
-    cached.conn = await cached.promise;
-    console.log("MongoDB connected");
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
-  return cached.conn;
-};
+// CRITICAL for Vercel
+export default app;
