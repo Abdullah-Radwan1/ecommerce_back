@@ -46,7 +46,7 @@ export const addToCart = catchAsync(async (req, res, next) => {
   const product = await Product.findById(productId);
 
   const existingItem = cart.items.find(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() === productId,
   );
 
   if (existingItem) {
@@ -89,7 +89,9 @@ export const syncCartPrices = catchAsync(async (req, res, next) => {
 export const removeFromCart = catchAsync(async (req, res, next) => {
   const cart = await Cart.findOne({ user: req.user._id });
 
-  cart.items = cart.items.filter((item) => item.product.toString() !== req.params.productId);
+  cart.items = cart.items.filter(
+    (item) => item.product.toString() !== req.params.productId,
+  );
 
   await cart.save();
 

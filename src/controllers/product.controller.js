@@ -11,7 +11,10 @@ export const createProduct = catchAsync(async (req, res, next) => {
     }),
   };
   const product = await Product.create(productData);
-  const populatedProduct = await Product.findById(product._id).populate(["category", "subcategory"]);
+  const populatedProduct = await Product.findById(product._id).populate([
+    "category",
+    "subcategory",
+  ]);
   res.status(201).json(populatedProduct);
 });
 
@@ -98,7 +101,10 @@ export const getProduct = catchAsync(async (req, res, next) => {
     ? { _id: identifier, isDeleted: false }
     : { slug: identifier, isDeleted: false };
 
-  const product = await Product.findOne(query).populate(["category", "subcategory"]);
+  const product = await Product.findOne(query).populate([
+    "category",
+    "subcategory",
+  ]);
 
   if (!product) {
     return next(new AppError("Product not found", 404));
@@ -123,7 +129,10 @@ export const updateProduct = catchAsync(async (req, res, next) => {
     return next(new AppError("No product found with that ID", 404));
   }
 
-  const populatedProduct = await Product.findById(product._id).populate(["category", "subcategory"]);
+  const populatedProduct = await Product.findById(product._id).populate([
+    "category",
+    "subcategory",
+  ]);
   res.json(populatedProduct);
 });
 
