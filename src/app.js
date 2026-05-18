@@ -24,7 +24,10 @@ const app = express();
 
 app.use(express.json());
 const corsOptions = {
-  origin: "http://localhost:4200", // Replace with your actual deployed URL
+  origin: [
+    "http://localhost:4200", // For local Angular development
+    process.env.FRONTEND_URL, // Your dynamic production URL from Vercel
+  ].filter(Boolean), // Replace with your actual deployed URL
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true, // Enable this if you are using cookies or sessions
 };

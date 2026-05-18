@@ -7,7 +7,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
   const productData = {
     ...req.body,
     ...(req.file && {
-      imageUrl: `${process.env.URL}/uploads/products/${req.file.filename}`,
+      imageUrl: `${process.env.FRONTEND_URL}/uploads/products/${req.file.filename}`,
     }),
   };
   const product = await Product.create(productData);
@@ -117,7 +117,7 @@ export const getProduct = catchAsync(async (req, res, next) => {
 export const updateProduct = catchAsync(async (req, res, next) => {
   // Handle image upload if a new file is provided during update
   if (req.file) {
-    req.body.imageUrl = `${process.env.URL}/uploads/products/${req.file.filename}`;
+    req.body.imageUrl = `${process.env.FRONTEND_URL}/uploads/products/${req.file.filename}`;
   }
 
   const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
