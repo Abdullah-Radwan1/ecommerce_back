@@ -1,10 +1,10 @@
 import Order from "../models/Order.model.js";
 import Product from "../models/Product.model.js";
-import Cart from "../models/cart.model.js";
-import Address from "../models/address.model.js";
+import Cart from "../models/Cart.model.js";
+import Address from "../models/Address.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
-import User from "../models/user.model.js";
+import User from "../models/User.model.js";
 import mongoose from "mongoose";
 // Helper to return product quantities to stock when order is cancelled
 const increaseProductStock = async (productId, quantity) => {
