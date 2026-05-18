@@ -91,10 +91,14 @@ export const featuredProducts = catchAsync(async (req, res, next) => {
 
 // GET ONE
 export const getProduct = catchAsync(async (req, res, next) => {
-  const product = await Product.findOne({
-    slug: req.params.slug,
-    isDeleted: false,
-  }).populate(["category", "subcategory"]);
+  const identifier = req.params.slug;
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+
+  const query = isObjectId
+    ? { _id: identifier, isDeleted: false }
+    : { slug: identifier, isDeleted: false };
+
+  const product = await Product.findOne(query).populate(["category", "subcategory"]);
 
   if (!product) {
     return next(new AppError("Product not found", 404));
