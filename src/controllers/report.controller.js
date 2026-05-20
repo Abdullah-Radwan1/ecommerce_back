@@ -67,7 +67,7 @@ export const getsSalesReport = async (req, res) => {
                 _id: "$product._id",
                 name: { $first: "$product.name" },
                 revenue: { $sum: "$totalPrice" },
-                imageURL: { $first: "$product.imageURL" },
+                imageUrl: { $first: "$product.imageUrl" },
                 quantity: { $sum: "$items.quantity" },
               },
             },

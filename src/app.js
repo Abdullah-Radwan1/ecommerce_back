@@ -12,7 +12,7 @@ import categoriesRoutes from "./routes/category.route.js";
 import testimonialRoutes from "./routes/testimonial.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import adminProductsRoutes from "./routes/admin.products.routes.js";
-import revenueRoutes from "./routes/revenue.route.js";
+import reportRoutes from "./routes/report.route.js";
 import userRoutes from "./routes/user.route.js";
 import addressRoutes from "./routes/address.route.js";
 
@@ -41,9 +41,9 @@ app.use("/v1/orders", orderRoutes);
 app.use("/v1/cart", cartRoutes);
 app.use("/v1/refund", refundRoutes);
 app.use("/v1/testimonials", testimonialRoutes);
-app.use("/v1/admin", adminRoutes);
+app.use("/v1/admin/report", reportRoutes);
 app.use("/v1/admin/products", adminProductsRoutes);
-app.use("/v1/admin/revenue", revenueRoutes);
+app.use("/v1/admin", adminRoutes);
 app.use("/v1/users", userRoutes);
 app.use("/v1/addresses", addressRoutes);
 
