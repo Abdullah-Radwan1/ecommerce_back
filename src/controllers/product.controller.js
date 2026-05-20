@@ -6,10 +6,12 @@ import { getPagination } from "../middleware/pagination.middleware.js";
 export const createProduct = catchAsync(async (req, res, next) => {
   const productData = {
     ...req.body,
+
     ...(req.file && {
       imageUrl: `${process.env.FRONTEND_URL}/uploads/products/${req.file.filename}`,
     }),
   };
+
   const product = await Product.create(productData);
   const populatedProduct = await Product.findById(product._id).populate([
     "category",
@@ -22,6 +24,7 @@ export const createProduct = catchAsync(async (req, res, next) => {
 export const getProducts = catchAsync(async (req, res, next) => {
   const { category, subcategory, minPrice, maxPrice, search, status } =
     req.query;
+  console.log(req);
 
   // 1. Initialize empty filter
   const filter = {};
