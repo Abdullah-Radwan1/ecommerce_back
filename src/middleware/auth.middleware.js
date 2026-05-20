@@ -30,6 +30,7 @@ export const protect = (req, res, next) => {
 // ------------------------------------------------------
 export const adminOnly = (req, res, next) => {
   // 🔥 protect should run before this
+
   if (!req.user) {
     return next(new AppError("Not authenticated", 401));
   }

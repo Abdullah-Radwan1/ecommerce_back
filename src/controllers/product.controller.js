@@ -24,7 +24,6 @@ export const createProduct = catchAsync(async (req, res, next) => {
 export const getProducts = catchAsync(async (req, res, next) => {
   const { category, subcategory, minPrice, maxPrice, search, status } =
     req.query;
-  console.log(req);
 
   // 1. Initialize empty filter
   const filter = {};
