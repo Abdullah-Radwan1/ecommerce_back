@@ -74,3 +74,18 @@ export const deleteTestimonial = catchAsync(async (req, res, next) => {
   await Testimonial.findByIdAndUpdate(req.params.id, { isDeleted: true });
   res.json({ message: "Testimonial soft deleted" });
 });
+
+/**
+ * HIDE TESTIMONIAL (Admin)
+ */
+export const hideTestimonial = catchAsync(async (req, res, next) => {
+  const testimonial = await Testimonial.findByIdAndUpdate(
+    req.params.id,
+    { isApproved: false },
+    { new: true },
+  );
+  if (!testimonial) {
+    return next(new AppError("Testimonial not found", 404));
+  }
+  res.json({ testimonial });
+});

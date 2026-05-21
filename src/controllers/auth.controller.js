@@ -16,10 +16,11 @@ export const generateToken = (res, user) => {
     },
   );
 
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -106,10 +107,11 @@ export const login = catchAsync(async (req, res, next) => {
  * LOGOUT
  */
 export const logout = (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     expires: new Date(0),
   });
 
@@ -125,4 +127,32 @@ export const getProfile = catchAsync(async (req, res, next) => {
     return next(new AppError("User not found", 404));
   }
   res.json({ user });
+});
+
+/**
+ * CHANGE PASSWORD
+ */
+export const changePassword = catchAsync(async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return next(new AppError("Please provide current and new password", 400));
+  }
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Check if current password is correct
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    return next(new AppError("Incorrect current password", 401));
+  }
+
+  // Set new password (pre-save hook will hash it automatically)
+  user.password = newPassword;
+  await user.save();
+
+  res.status(200).json({ message: "Password updated successfully" });
 });

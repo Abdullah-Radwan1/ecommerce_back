@@ -4,6 +4,7 @@ import {
   getApprovedTestimonials,
   getAllTestimonials,
   approveTestimonial,
+  hideTestimonial,
   deleteTestimonial,
 } from "../controllers/testimonials.controller.js";
 import { protect, adminOnly } from "../middleware/auth.middleware.js";
@@ -14,6 +15,7 @@ router.get("/", getApprovedTestimonials);
 router.get("/all", protect, adminOnly, getAllTestimonials);
 router.post("/", protect, createTestimonial);
 router.put("/:id/approve", protect, adminOnly, approveTestimonial);
+router.put("/:id/hide", protect, adminOnly, hideTestimonial);
 router.delete("/:id", protect, deleteTestimonial);
 
 export default router;

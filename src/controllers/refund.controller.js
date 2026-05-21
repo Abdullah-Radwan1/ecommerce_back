@@ -19,6 +19,12 @@ export const requestRefund = catchAsync(async (req, res, next) => {
     return next(new AppError("Not your order", 403));
   }
 
+  // Check if a refund request already exists for this order
+  const existingRefund = await Refund.findOne({ order: orderId });
+  if (existingRefund) {
+    return next(new AppError("A refund request has already been submitted for this order", 400));
+  }
+
   const refund = await Refund.create({
     order: orderId,
     user: req.user._id,

@@ -1,6 +1,7 @@
 import Order from "../models/Order.model.js";
 import Product from "../models/Product.model.js";
 import Cart from "../models/Cart.model.js";
+import Refund from "../models/Refund.model.js";
 import Address from "../models/Address.model.js";
 import { catchAsync } from "../utilities/catchAsync.ut.js";
 import { AppError } from "../utilities/appError.ut.js";
@@ -154,9 +155,13 @@ export const createOrder = catchAsync(async (req, res, next) => {
 
 import { getPagination } from "../middleware/pagination.middleware.js";
 
-// Mapper function to guarantee items have name and imageUrl snapshots
-const mapOrdersWithSnapshots = (results) => {
-  if (results.data) {
+// Mapper function to guarantee items have name and imageUrl snapshots, and refund request info
+const mapOrdersWithRefundsAndSnapshots = async (results) => {
+  if (results.data && results.data.length > 0) {
+    const orderIds = results.data.map((order) => order._id);
+    const refunds = await Refund.find({ order: { $in: orderIds } });
+    const refundMap = new Map(refunds.map((r) => [r.order.toString(), r]));
+
     results.data = results.data.map((order) => {
       const obj = order.toObject ? order.toObject() : order;
       if (obj.items) {
@@ -170,6 +175,9 @@ const mapOrdersWithSnapshots = (results) => {
           return item;
         });
       }
+      const refund = refundMap.get(obj._id.toString());
+      obj.hasRefundRequest = !!refund;
+      obj.refundStatus = refund ? refund.status : "none";
       return obj;
     });
   }
@@ -180,14 +188,14 @@ const mapOrdersWithSnapshots = (results) => {
 export const getMyOrders = catchAsync(async (req, res, next) => {
   const filter = { user: req.user._id };
   let results = await getPagination(Order, req, filter, ["items.product"]);
-  results = mapOrdersWithSnapshots(results);
+  results = await mapOrdersWithRefundsAndSnapshots(results);
   res.json(results);
 });
 
 // ADMIN: GET ALL ORDERS
 export const getAllOrders = catchAsync(async (req, res, next) => {
   let results = await getPagination(Order, req, {}, ["user", "items.product"]);
-  results = mapOrdersWithSnapshots(results);
+  results = await mapOrdersWithRefundsAndSnapshots(results);
   res.json(results);
 });
 
